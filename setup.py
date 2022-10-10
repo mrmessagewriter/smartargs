@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='smartargs',
-    version='1.0.0',    
+    version='1.0.2',
     description='Smart Argument command line processor',
     url='https://github.com/mrmessagewriter/smartargs',
     author='Sean Hummel',
