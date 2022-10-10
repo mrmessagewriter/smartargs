@@ -141,8 +141,7 @@ class TestSmartArgs(TestCase):
         self.assertDictContainsSubset({"test1": "default1", "test2": "default2"}, foundargs)
 
     def callback_test_function(self, name, value):
-        print(f"name={name}, value={value}")
-        self.callback_test_called = True
+        return f"VALUE={value}"
 
     def test_should_make_callback_when_parsed(self):
         testarg = smartargs.SmartArgs()
@@ -152,12 +151,12 @@ class TestSmartArgs(TestCase):
         testarg.add_option(
             smartargs.SmartArgsOption(callback=self.callback_test_function, longname="test2", hasvalue=True))
         testarg.add_option(
-            smartargs.SmartArgsOption(callback=self.callback_test_function, longname="test3", hasvalue=True))
-        testarg.add_option(smartargs.SmartArgsOption(callback=self.callback_test_function,
-                                                     shortname="t",
-                                                     hasvalue=False))
-        testarg.parse(["--test1=", "AVALUE", "-t", "--test2=AVALUE", "remainders"])
-        self.assertTrue(self.callback_test_called, "Callback failed")
+            smartargs.SmartArgsOption(callback=self.callback_test_function, longname="test3", hasvalue=False))
+
+        foundargs, remainders = testarg.parse(["--test1=", "AVALUE", "--test2=AVALUE", "--test3"])
+
+        print (foundargs)
+        self.assertDictContainsSubset({"test1": "VALUE=AVALUE", "test2": "VALUE=AVALUE", "test3": "VALUE=None"}, foundargs)
 
     def test_should_only_allow_values_from_set(self):
         testarg = smartargs.SmartArgs()

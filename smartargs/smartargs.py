@@ -12,7 +12,7 @@
         - boolean options
 """
 import json
-import columnizer
+from columnizer import columnizer
 
 
 class SmartArgsCommandLineParseError(Exception):
@@ -32,8 +32,14 @@ class SmartArgsArgumentNotAllowed(Exception):
 
 
 class SmartArgs:
-    def __init__(self):
+    def __init__(self, columndisplay=None):
         self.options = []
+        self.columndisplay = columndisplay
+        if columndisplay is None:
+            self.columndisplay = columnizer.Columnizer([columnizer.ColumnLineWrap(35),
+                                                        columnizer.ColumnLineWrap(35),
+                                                        columnizer.ColumnLineWrap(30)],
+                                                       style=columnizer.ColumnTableStyleNone())
         return
 
     def print_menu(self):
@@ -43,9 +49,7 @@ class SmartArgs:
             if opt.allowedvalues is not None:
                 row.append("allowed:" + str(opt.allowedvalues))
             rows.append(row)
-        print(columnizer.indent(rows, hasHeader=False, separateRows=False,
-                                delim="   ",
-                                wrapfunc=lambda x: columnizer.wrap_onspace_strict(x, 40)))
+        print(self.columndisplay.apply(rows))
 
     def add_option(self, option):
         """
@@ -204,7 +208,7 @@ class SmartArgs:
                                     argname, argvalue))
 
             if opt.callback is not None:
-                opt.callback(argname, argvalue)
+               argvalue = opt.callback(argname, argvalue)
 
             if bool(opt.islist):
                 if opt.localname in foundargs:
@@ -216,6 +220,9 @@ class SmartArgs:
                 foundargs[opt.localname].append(argvalue)
             else:
                 foundargs[opt.localname] = argvalue
+
+
+
 
         for opt in self.options:
             if opt.default and opt.localname not in foundargs:
